@@ -13,8 +13,8 @@ public class Caso2_Opcion1 {
     static ArrayList<String> TAMS = new ArrayList<>();
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        String path = "";
-        parseConfig(path);
+        String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
+        parseConfig(pathArg);
         findVDs(TP, NPROC, TAMS);
     }
 

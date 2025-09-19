@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 public class Caso2_Opcion2 {
     
@@ -29,24 +28,25 @@ public class Caso2_Opcion2 {
         int fails = 0;
         int hits = 0;
         int swap = 0;
+        HashMap<Integer, Long> lastAccess = new HashMap<>();
     }
 
     public static void main(String[] args) throws NumberFormatException, IOException {
-        Scanner sc = new Scanner(System.in);
-        numProcesses = 2;
-        numFrames = 8;
-        sc.close();
-        System.out.println("Inicio:");
-        String path = "C:\\Users\\th850\\OneDrive\\Documentos\\Universidad\\QuintoSemestre\\TIC\\Caso_02\\CASO2-TIC\\proc";
-        parseDVs(path, numFrames);
+        String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
+        numProcesses = args.length > 1 ? Integer.parseInt(args[1]) : 2;
+        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 4;
+
+        System.out.println("Inicio. BasePath = " + pathArg);
+        parseDVs(pathArg, numFrames);
         System.out.println("Simulacion:");
         simulate(processes);
     }
 
     public static void parseDVs(String basePath, int frames) throws NumberFormatException, IOException {
+        
         for (int i = 0; i < numProcesses; i++) {
             try {
-                BufferedReader br = new BufferedReader(new FileReader(basePath + i + ".txt"));
+                BufferedReader br = new BufferedReader(new FileReader(basePath + "\\proc" + i + ".txt"));
                 String line;
                 Process p = new Process();
                 System.out.println("PROC " + i + " == Leyendo archivo de configuracion ==");
@@ -67,6 +67,7 @@ public class Caso2_Opcion2 {
                         p.NP = Integer.parseInt(line.substring(3).trim());
                         for (int k = 0; k < p.NP; k++) {
                             p.pageTable.put(k, -1);
+                            p.lastAccess.put(k, 0L);
                         }
                         System.out.println("PROC " + i + "leyendo TP. Num Paginas: " + p.NP);
                     } else if (line.startsWith("M1:") || (line.startsWith("M2:")) || (line.startsWith("M3:"))) {
@@ -90,7 +91,7 @@ public class Caso2_Opcion2 {
         }
     }
 
-    public static void simulate(Queue<Process> processes) {
+    private static void simulate(Queue<Process> processes) {
         while (!processes.isEmpty()) {
             Process p = processes.remove();
             String insLine = p.processList.get(p.line);
@@ -101,6 +102,8 @@ public class Caso2_Opcion2 {
                 int page = Integer.parseInt(insLine.split(",")[1]);
                 if (table.get(page) != -1) {
                     p.hits++;
+                    long cantAccess = p.lastAccess.get(page);
+                    p.lastAccess.put(page, cantAccess++);
                     p.line++;
                     System.out.println("PROC " + p.ID + " hits: " + p.hits);
                 } else {
@@ -110,14 +113,18 @@ public class Caso2_Opcion2 {
                     for (Integer frame : p.frames) {
                         if (realFrames.get(frame) == -1 && (replace == true)) {
                             realFrames.put(frame, page);
+                            long cantAccess = p.lastAccess.get(page);
+                            p.lastAccess.put(page, cantAccess++);
                             table.put(page, frame);
                             replace = false;
                         }
                     }
                     if (replace) {
+                        System.out.println("ENTRO A REEMPLAZO");
                         p.swap += 2;
-                        int frame = p.frames.get(0);
-                        p.pageTable.put(frame, page);
+                        lruReplace(p, page);
+                        System.out.println("lastAccess: " + p.lastAccess);
+
                     }
                 }
                 System.out.println("PROC " + p.ID + " envejecimiento");
@@ -159,4 +166,31 @@ public class Caso2_Opcion2 {
             
         }
     }
+
+    
+static void lruReplace(Process p, int page) {
+    
+    int victimPage = -1;
+    long minAccess = Long.MAX_VALUE;
+    int victimFrame = -1;
+
+    for (Integer pg : p.pageTable.keySet()) {
+        Integer f = p.pageTable.get(pg);
+        long la = p.lastAccess.get(pg);
+        if (la < minAccess) {
+            minAccess = la;
+            victimPage = pg;
+            victimFrame = f;
+        }
+    }
+    System.out.println("Victima: pag " + victimPage + " marco " + victimFrame);
+    p.pageTable.put(victimPage, -1);
+    p.lastAccess.put(victimPage, 0L);
+
+    realFrames.put(victimFrame, page);
+    p.pageTable.put(page, victimFrame); 
+    long cantAccess = p.lastAccess.get(page);
+    p.lastAccess.put(page, cantAccess++);
+}
+
 }
