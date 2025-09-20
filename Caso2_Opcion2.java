@@ -95,36 +95,30 @@ public class Caso2_Opcion2 {
         while (!processes.isEmpty()) {
             Process p = processes.remove();
             String insLine = p.processList.get(p.line);
-            HashMap<Integer, Integer> table = p.pageTable;
             if (!((p.line + 1) > p.processList.size())) {
                 System.out.println("Turno proc: " + p.ID);
                 System.out.println("PROC " + p.ID + " analizando linea_:" + p.line);
                 int page = Integer.parseInt(insLine.split(",")[1]);
-                if (table.get(page) != -1) {
+                if (p.pageTable.get(page) != -1) {
                     p.hits++;
-                    long cantAccess = p.lastAccess.get(page);
-                    p.lastAccess.put(page, cantAccess++);
+                    long cantAccess = p.lastAccess.get(page) + 1;
+                    p.lastAccess.put(page, cantAccess);
                     p.line++;
                     System.out.println("PROC " + p.ID + " hits: " + p.hits);
                 } else {
+                    p.fails++;
                     System.out.println("PROC " + p.ID + " falla de pag: " + page);
                     boolean replace = true;
-                    p.fails++;
                     for (Integer frame : p.frames) {
                         if (realFrames.get(frame) == -1 && (replace == true)) {
                             realFrames.put(frame, page);
-                            long cantAccess = p.lastAccess.get(page);
-                            p.lastAccess.put(page, cantAccess++);
-                            table.put(page, frame);
+                            p.pageTable.put(page, frame);
                             replace = false;
                         }
                     }
                     if (replace) {
-                        System.out.println("ENTRO A REEMPLAZO");
                         p.swap += 2;
                         lruReplace(p, page);
-                        System.out.println("lastAccess: " + p.lastAccess);
-
                     }
                 }
                 System.out.println("PROC " + p.ID + " envejecimiento");
@@ -168,29 +162,25 @@ public class Caso2_Opcion2 {
     }
 
     
-static void lruReplace(Process p, int page) {
-    
-    int victimPage = -1;
-    long minAccess = Long.MAX_VALUE;
-    int victimFrame = -1;
+    private static void lruReplace(Process p, int page) {
+        
+        int victimPage = -1;
+        long minAccess = Long.MAX_VALUE;
+        int victimFrame = -1;
 
-    for (Integer pg : p.pageTable.keySet()) {
-        Integer f = p.pageTable.get(pg);
-        long la = p.lastAccess.get(pg);
-        if (la < minAccess) {
-            minAccess = la;
-            victimPage = pg;
-            victimFrame = f;
+        for (Integer pg : p.pageTable.keySet()) {
+            Integer f = p.pageTable.get(pg);
+            long la = p.lastAccess.get(pg);
+            if (la < minAccess && f != -1) {
+                minAccess = la;
+                victimPage = pg;
+                victimFrame = f;
+            }
         }
+        p.pageTable.put(victimPage, -1);
+        p.lastAccess.put(victimPage, 0L);
+        realFrames.put(victimFrame, page);
+        p.pageTable.put(page, victimFrame); 
     }
-    System.out.println("Victima: pag " + victimPage + " marco " + victimFrame);
-    p.pageTable.put(victimPage, -1);
-    p.lastAccess.put(victimPage, 0L);
-
-    realFrames.put(victimFrame, page);
-    p.pageTable.put(page, victimFrame); 
-    long cantAccess = p.lastAccess.get(page);
-    p.lastAccess.put(page, cantAccess++);
-}
 
 }
