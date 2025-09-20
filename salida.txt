@@ -1,0 +1,14 @@
+Proceso: 0
+- Num referencias: 48
+- Fallas: 2
+- Hits: 46
+- SWAP: 2
+- Tasa fallas: 0.0417
+- Tasa Exito: 0.9583
+Proceso: 1
+- Num referencias: 192
+- Fallas: 6
+- Hits: 186
+- SWAP: 6
+- Tasa fallas: 0.0313
+- Tasa Exito: 0.9688

@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +15,7 @@ public class Caso2_Opcion2 {
     static int numProcesses;
     static HashMap<Integer, Integer> realFrames = new HashMap<>();
     static Queue<Process> processes = new LinkedList<>();
+    static HashMap<Integer, Process> finishedProcesses = new HashMap<>();
 
     static class Process {
         int ID;
@@ -34,7 +37,7 @@ public class Caso2_Opcion2 {
     public static void main(String[] args) throws NumberFormatException, IOException {
         String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
         numProcesses = args.length > 1 ? Integer.parseInt(args[1]) : 2;
-        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 4;
+        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 8;
 
         System.out.println("Inicio. BasePath = " + pathArg);
         parseDVs(pathArg, numFrames);
@@ -107,6 +110,8 @@ public class Caso2_Opcion2 {
                     System.out.println("PROC " + p.ID + " hits: " + p.hits);
                 } else {
                     p.fails++;
+                    p.swap++;
+                    p.hits--;
                     System.out.println("PROC " + p.ID + " falla de pag: " + page);
                     boolean replace = true;
                     for (Integer frame : p.frames) {
@@ -117,7 +122,7 @@ public class Caso2_Opcion2 {
                         }
                     }
                     if (replace) {
-                        p.swap += 2;
+                        p.swap ++;
                         lruReplace(p, page);
                     }
                 }
@@ -152,16 +157,16 @@ public class Caso2_Opcion2 {
                         }
                         processes.add(cp);
                     }
+                    finishedProcesses.put(p.ID, p);
 
                 } else {
                     processes.add(p);
                 }
             }
-            
         }
+        createfiles();
     }
 
-    
     private static void lruReplace(Process p, int page) {
         
         int victimPage = -1;
@@ -181,6 +186,31 @@ public class Caso2_Opcion2 {
         p.lastAccess.put(victimPage, 0L);
         realFrames.put(victimFrame, page);
         p.pageTable.put(page, victimFrame); 
+    }
+
+    private static void createfiles() {
+        String fileName = "salida.txt";
+        
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+
+            for (int i = 0; i < numProcesses; i++) {
+                Process p = finishedProcesses.get(i);
+                float tasaFallas = (float)p.fails / (float)p.NR;
+                float tasaExito = 1 - tasaFallas;
+
+                writer.println("Proceso: " + i);
+                writer.println("- Num referencias: " + p.NR);
+                writer.println("- Fallas: " + p.fails);
+                writer.println("- Hits: " + p.hits);
+                writer.println("- SWAP: " + p.swap);
+                writer.println("- Tasa fallas: " + String.format("%.4f", tasaFallas));
+                writer.println("- Tasa Exito: " + String.format("%.4f", tasaExito));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
