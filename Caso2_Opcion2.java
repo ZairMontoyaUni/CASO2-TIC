@@ -16,6 +16,7 @@ public class Caso2_Opcion2 {
     static HashMap<Integer, Integer> realFrames = new HashMap<>();
     static Queue<Process> processes = new LinkedList<>();
     static HashMap<Integer, Process> finishedProcesses = new HashMap<>();
+    static long globalTime = 0L;
 
     static class Process {
         int ID;
@@ -37,7 +38,7 @@ public class Caso2_Opcion2 {
     public static void main(String[] args) throws NumberFormatException, IOException {
         String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
         numProcesses = args.length > 1 ? Integer.parseInt(args[1]) : 2;
-        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 8;
+        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 4;
 
         System.out.println("Inicio. BasePath = " + pathArg);
         parseDVs(pathArg, numFrames);
@@ -70,7 +71,7 @@ public class Caso2_Opcion2 {
                         p.NP = Integer.parseInt(line.substring(3).trim());
                         for (int k = 0; k < p.NP; k++) {
                             p.pageTable.put(k, -1);
-                            p.lastAccess.put(k, 0L);
+                            p.lastAccess.put(k, globalTime);
                         }
                         System.out.println("PROC " + i + "leyendo TP. Num Paginas: " + p.NP);
                     } else if (line.startsWith("M1:") || (line.startsWith("M2:")) || (line.startsWith("M3:"))) {
@@ -96,6 +97,7 @@ public class Caso2_Opcion2 {
 
     private static void simulate(Queue<Process> processes) {
         while (!processes.isEmpty()) {
+            globalTime += 1L;
             Process p = processes.remove();
             String insLine = p.processList.get(p.line);
             if (!((p.line + 1) > p.processList.size())) {
@@ -104,8 +106,7 @@ public class Caso2_Opcion2 {
                 int page = Integer.parseInt(insLine.split(",")[1]);
                 if (p.pageTable.get(page) != -1) {
                     p.hits++;
-                    long cantAccess = p.lastAccess.get(page) + 1;
-                    p.lastAccess.put(page, cantAccess);
+                    p.lastAccess.put(page, globalTime);
                     p.line++;
                     System.out.println("PROC " + p.ID + " hits: " + p.hits);
                 } else {
@@ -124,6 +125,7 @@ public class Caso2_Opcion2 {
                     if (replace) {
                         p.swap ++;
                         lruReplace(p, page);
+                        System.out.println("Last access: " + p.lastAccess);
                     }
                 }
                 System.out.println("PROC " + p.ID + " envejecimiento");
@@ -183,7 +185,6 @@ public class Caso2_Opcion2 {
             }
         }
         p.pageTable.put(victimPage, -1);
-        p.lastAccess.put(victimPage, 0L);
         realFrames.put(victimFrame, page);
         p.pageTable.put(page, victimFrame); 
     }

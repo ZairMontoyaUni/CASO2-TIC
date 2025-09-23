@@ -7,8 +7,8 @@ Proceso: 0
 - Tasa Exito: 0.9583
 Proceso: 1
 - Num referencias: 192
-- Fallas: 6
-- Hits: 186
-- SWAP: 6
-- Tasa fallas: 0.0313
-- Tasa Exito: 0.9688
+- Fallas: 29
+- Hits: 163
+- SWAP: 54
+- Tasa fallas: 0.1510
+- Tasa Exito: 0.8490
