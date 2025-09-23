@@ -103,7 +103,7 @@ public class Caso2_Opcion2 {
             if (!((p.line + 1) > p.processList.size())) {
                 System.out.println("Turno proc: " + p.ID);
                 System.out.println("PROC " + p.ID + " analizando linea_:" + p.line);
-                int page = Integer.parseInt(insLine.split(",")[1]);
+                int page = Integer.parseInt(insLine.split(",")[1].trim());
                 if (p.pageTable.get(page) != -1) {
                     p.hits++;
                     p.lastAccess.put(page, globalTime);

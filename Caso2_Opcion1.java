@@ -20,7 +20,7 @@ public class Caso2_Opcion1 {
 
     public static void parseConfig(String path) throws NumberFormatException, IOException {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            BufferedReader br = new BufferedReader(new FileReader(path + "/configuracion.txt"));
             String line;
 
             while ((line = br.readLine()) != null) {
