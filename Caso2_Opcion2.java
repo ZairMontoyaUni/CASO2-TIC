@@ -125,7 +125,6 @@ public class Caso2_Opcion2 {
                     if (replace) {
                         p.swap ++;
                         lruReplace(p, page);
-                        System.out.println("Last access: " + p.lastAccess);
                     }
                 }
                 System.out.println("PROC " + p.ID + " envejecimiento");
