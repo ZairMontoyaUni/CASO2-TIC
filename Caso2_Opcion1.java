@@ -13,9 +13,12 @@ public class Caso2_Opcion1 {
     static ArrayList<String> TAMS = new ArrayList<>();
 
     public static void main(String[] args) throws NumberFormatException, IOException {
+        System.out.println("Esta es la primera opcion del simulador, recuerde que tiene que crear un archivo con nombre configuraciones.txt en la misma ruta que este archivo");
+        System.out.println("Se incluyo un archivo configuraciones.txt en el zip del entregable del caso");
         String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
         parseConfig(pathArg);
         findVDs(TP, NPROC, TAMS);
+        System.out.println("Archivos generados exitosamente");
     }
 
     public static void parseConfig(String path) throws NumberFormatException, IOException {

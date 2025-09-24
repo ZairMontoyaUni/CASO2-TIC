@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Scanner;
 
 public class Caso2_Opcion2 {
     
@@ -37,13 +38,18 @@ public class Caso2_Opcion2 {
 
     public static void main(String[] args) throws NumberFormatException, IOException {
         String pathArg = args.length > 0 ? args[0] : System.getProperty("user.dir");
-        numProcesses = args.length > 1 ? Integer.parseInt(args[1]) : 2;
-        numFrames = args.length > 2 ? Integer.parseInt(args[2]) : 4;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Ingrese la cantidad de procesos: ");
+        numProcesses = sc.nextInt();
+        System.out.println("Ingrese la cantidad de marcos en memoria real, recuerde que tiene que ser multiplo de la cantidad de procesos: ");
+        numFrames = sc.nextInt();
+        sc.close();
 
         System.out.println("Inicio. BasePath = " + pathArg);
         parseDVs(pathArg, numFrames);
         System.out.println("Simulacion:");
         simulate(processes);
+        System.out.println("Archivo generado exitosamente");
     }
 
     public static void parseDVs(String basePath, int frames) throws NumberFormatException, IOException {
